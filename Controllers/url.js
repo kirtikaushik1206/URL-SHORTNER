@@ -16,4 +16,24 @@ async function handleGenerateNewShortURL(req,res){
  return res.json({id: shortID});
 }
 
-module.exports={handleGenerateNewShortURL ,}
+
+async function handleGetAnalytics(req, res) {
+    const shortId = req.params.shortId;
+    
+    // 1. Fetch from database
+    const result = await URL.findOne({ shortId });
+    
+    // 2. SAFETY CHECK: If the ID wasn't found, stop here!
+    if (!result) {
+        return res.status(404).json({ error: "Short URL not found" });
+    }
+    
+    // 3. If it exists, now it's safe to read visitHistory
+    return res.json({
+        totalClicks: result.visitHistory.length,
+        analytics: result.visitHistory
+    });
+}
+
+
+module.exports={handleGenerateNewShortURL , handleGetAnalytics};
